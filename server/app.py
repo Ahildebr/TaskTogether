@@ -2,6 +2,7 @@ from flask import request, jsonify, make_response, session
 from config import app, db, socketio
 from models import *
 from flask_cors import CORS
+from sqlalchemy.exc import IntegrityError
 
 # Enable CORS with credentials
 CORS(app, supports_credentials=True)
@@ -49,6 +50,30 @@ def check_current_user():
 
     user = db.session.get(User, session["user_id"])
     return make_response(user.to_dict(), 200)
+
+
+@app.route("/api/signup", methods=["POST"])
+def signup():
+    """Register a new user and start a session."""
+    data = request.get_json()
+    username = data.get("username")
+    password = data.get("password")
+
+    try:
+        user = User(username=username)
+        user.password_hash = password  #Hashes password using setter
+
+        db.session.add(user)
+        db.session.commit()
+
+        session["user_id"] = user.id  #Auto-login after signup
+        return make_response(jsonify(user.to_dict()), 201)
+
+    except IntegrityError:
+        return jsonify({"error": "Username must be unique"}), 422
+
+    except ValueError as error:
+        return jsonify({"error": str(error)}), 422
 
 
 # --- Boards Routes ---

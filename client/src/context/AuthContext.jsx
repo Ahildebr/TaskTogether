@@ -1,10 +1,14 @@
 import React, { createContext, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 
 const AuthContext = createContext({});
+
 
 const AuthProvider = ({ children }) => {
     const [currentUser, setCurrentUser] = useState(null);
     const [loggedin, setLoggedIn] = useState(false);
+    const navigate = useNavigate();
 
     async function checkCurrentUser() {
         // ✅ Fix: Correct API route and include credentials
@@ -37,6 +41,7 @@ const AuthProvider = ({ children }) => {
 
         setCurrentUser(null);
         setLoggedIn(false);
+        navigate('/login')
     };
 
     useEffect(() => {
