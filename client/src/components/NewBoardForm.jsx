@@ -1,8 +1,8 @@
 import React, { useState, useContext } from "react";
-import { BoardContext } from "../context/BoardsContext";
+import { BoardsContext } from "../context/BoardsContext";
 
 const NewBoardForm = () => {
-  const { createBoard } = useContext(BoardContext);
+  const { createBoard } = useContext(BoardsContext);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);

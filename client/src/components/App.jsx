@@ -1,7 +1,7 @@
 import "./CssStyling/App.css";
 import { Routes, Route } from 'react-router-dom'
 import { AuthProvider } from '../context/AuthContext.jsx';
-import { BoardProvider } from '../context/BoardsContext.jsx';
+import { BoardsProvider } from '../context/BoardsContext.jsx';
 import Navbar from './Navbar.jsx'
 import SignupForm from './SignupForm.jsx';
 import LandingPage from './LandingPage.jsx';
@@ -16,7 +16,7 @@ function App() {
   return (
     <>
       <AuthProvider>
-        <BoardProvider>
+        <BoardsProvider>
           <TaskProvider>
             <Navbar />
             <Routes>
@@ -29,7 +29,7 @@ function App() {
               <Route path="/new-board" element={<NewBoardPage />} />
             </Routes>
           </TaskProvider>
-        </BoardProvider>
+        </BoardsProvider>
       </AuthProvider>
     </>
   );

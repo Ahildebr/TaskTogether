@@ -1,26 +1,46 @@
-import React, { createContext, useState, useEffect } from "react";
+// src/context/BoardsContext.jsx
+import React, { createContext, useEffect, useState } from "react";
+import { io } from "socket.io-client";
 
-export const BoardContext = createContext();
+export const BoardsContext = createContext();
 
-export const BoardProvider = ({ children }) => {
+export const BoardsProvider = ({ children }) => {
   const [boards, setBoards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // ✅ Fetch all boards
+  useEffect(() => {
+    fetchBoards();
+
+    const socket = io("http://127.0.0.1:5555", {
+      transports: ["websocket"],
+      withCredentials: true,
+    });
+
+    socket.on("board_created", (newBoard) => {
+      console.log("📥 Received board_created:", newBoard);
+      setBoards((prev) => [...prev, newBoard]);
+    });
+
+    socket.on("board_updated", (updatedBoard) => {
+      console.log("🔄 Received board_updated:", updatedBoard);
+      setBoards((prev) =>
+        prev.map((board) =>
+          board.id === updatedBoard.id ? updatedBoard : board
+        )
+      );
+    })
+
+    return () => socket.disconnect();
+  }, []);
+
   const fetchBoards = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://127.0.0.1:5555/api/boards", {
-        method: "GET",
+      const res = await fetch("http://127.0.0.1:5555/api/boards", {
         credentials: "include",
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch boards");
-      }
-
-      const data = await response.json();
+      const data = await res.json();
       setBoards(data);
     } catch (err) {
       setError(err.message);
@@ -29,10 +49,9 @@ export const BoardProvider = ({ children }) => {
     }
   };
 
-  // ✅ Create a new board
   const createBoard = async (title, description) => {
     try {
-      const response = await fetch("http://127.0.0.1:5555/api/boards", {
+      await fetch("http://127.0.0.1:5555/api/boards", {
         method: "POST",
         credentials: "include",
         headers: {
@@ -40,26 +59,57 @@ export const BoardProvider = ({ children }) => {
         },
         body: JSON.stringify({ title, description }),
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to create board");
-      }
-
-      const newBoard = await response.json();
-      setBoards((prevBoards) => [...prevBoards, newBoard]); // Update state
     } catch (err) {
       setError(err.message);
     }
   };
 
-  // ✅ Auto-fetch boards when the context loads
-  useEffect(() => {
-    fetchBoards();
-  }, []);
+
+  const updateBoard = async (id, updatedData) => {
+    try {
+      const res = await fetch(`http://127.0.0.1:5555/api/boards/${id}`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedData),
+      });
+  
+      if (!res.ok) throw new Error("Failed to update board");
+      const updated = await res.json();
+  
+      // this isn't necessary unless WebSocket fails, but it’s a good fallback
+      setBoards((prev) =>
+        prev.map((b) => (b.id === updated.id ? updated : b))
+      );
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+
+
+  const deleteBoard = async (id) => {
+    try {
+      const res = await fetch(`http://127.0.0.1:5555/api/boards/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+  
+      if (!res.ok) throw new Error("Failed to delete board");
+  
+      setBoards((prev) => prev.filter((b) => b.id !== id));
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+  
+
 
   return (
-    <BoardContext.Provider value={{ boards, loading, error, fetchBoards, createBoard }}>
+    <BoardsContext.Provider value={{ boards, loading, error, fetchBoards, createBoard, updateBoard, deleteBoard }}>
       {children}
-    </BoardContext.Provider>
+    </BoardsContext.Provider>
   );
 };

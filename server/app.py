@@ -82,6 +82,35 @@ def boards():
 
         return make_response(jsonify(board_data), 201)
 
+@app.route("/api/boards/<int:board_id>", methods=["PATCH", "DELETE"])
+def handle_board(board_id):
+    if "user_id" not in session:
+        return make_response({"error": "Unauthorized"}, 401)
+
+    board = db.session.get(Boards, board_id)
+    if not board:
+        return make_response({"error": "Board not found"}, 404)
+
+    if request.method == "PATCH":
+        data = request.get_json()
+        board.title = data.get("title", board.title)
+        board.description = data.get("description", board.description)
+        db.session.commit()
+
+        board_data = board.to_dict()
+        print("📡 Emitting board_updated:", board_data)
+        socketio.emit("board_updated", board_data)
+        return make_response(jsonify(board_data), 200)
+
+    if request.method == "DELETE":
+        db.session.delete(board)
+        db.session.commit()
+
+        print(f"❌ Board {board_id} deleted")
+        socketio.emit("board_deleted", {"id": board_id})
+        return make_response({"message": "Board deleted"}, 200)
+
+
 
 @app.route("/api/boards/<int:board_id>/tasks", methods=["GET"])
 def get_tasks_for_board(board_id):

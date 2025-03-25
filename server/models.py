@@ -21,7 +21,7 @@ class User(db.Model, SerializerMixin):
     username = db.Column(db.String(25), unique=True, nullable=False)
     _password_hash = db.Column(db.String(255), nullable=False)
 
-    user_boards = db.relationship("UserBoards", back_populates="user")
+    user_boards = db.relationship("UserBoards", back_populates="user", cascade="all, delete-orphan")
     tasks = db.relationship("Tasks", back_populates="user")
 
 
@@ -66,8 +66,8 @@ class Boards(db.Model, SerializerMixin):
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.String(255), nullable=False)
 
-    user_boards = db.relationship("UserBoards", back_populates="board")
-    tasks = db.relationship("Tasks", back_populates="board")
+    user_boards = db.relationship("UserBoards", back_populates="board", cascade="all, delete-orphan")
+    tasks = db.relationship("Tasks", back_populates="board", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<Board {self.title}>"
