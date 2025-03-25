@@ -82,7 +82,7 @@ def boards():
 
         return make_response(jsonify(board_data), 201)
 
-@app.route("/api/boards/<int:board_id>", methods=["PATCH", "DELETE"])
+@app.route("/api/boards/<int:board_id>", methods=["GET", "PATCH", "DELETE"])
 def handle_board(board_id):
     if "user_id" not in session:
         return make_response({"error": "Unauthorized"}, 401)
@@ -91,7 +91,14 @@ def handle_board(board_id):
     if not board:
         return make_response({"error": "Board not found"}, 404)
 
-    if request.method == "PATCH":
+    user_id = session["user_id"]
+
+    if request.method == "GET":
+        if user_id not in [ub.user_id for ub in board.user_boards]:
+            return make_response({"error": "Forbidden"}, 403)
+        return jsonify(board.to_dict()), 200
+
+    elif request.method == "PATCH":
         data = request.get_json()
         board.title = data.get("title", board.title)
         board.description = data.get("description", board.description)
@@ -102,13 +109,15 @@ def handle_board(board_id):
         socketio.emit("board_updated", board_data)
         return make_response(jsonify(board_data), 200)
 
-    if request.method == "DELETE":
+    elif request.method == "DELETE":
         db.session.delete(board)
         db.session.commit()
-
         print(f"❌ Board {board_id} deleted")
         socketio.emit("board_deleted", {"id": board_id})
         return make_response({"message": "Board deleted"}, 200)
+
+    # 👇 fallback to avoid None returns
+    return make_response({"error": "Method not allowed"}, 405)
 
 
 
@@ -123,6 +132,32 @@ def get_tasks_for_board(board_id):
 
     tasks = [task.to_dict() for task in board.tasks]
     return make_response(jsonify(tasks), 200)
+
+
+@app.route("/api/boards/<int:board_id>/add_user", methods=["POST"])
+def add_user_to_board(board_id):
+    if "user_id" not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.get_json()
+    username = data.get("username")
+
+    user = User.query.filter_by(username=username).first()
+    board = db.session.get(Boards, board_id)
+
+    if not user or not board:
+        return jsonify({"error": "User or board not found"}), 404
+
+    # Check if already a member
+    existing_link = UserBoards.query.filter_by(user_id=user.id, board_id=board.id).first()
+    if existing_link:
+        return jsonify({"error": "User already added"}), 400
+
+    new_link = UserBoards(user_id=user.id, board_id=board.id)
+    db.session.add(new_link)
+    db.session.commit()
+
+    return jsonify({"message": f"{username} added to board"}), 200
 
 
 # --- Tasks Routes ---

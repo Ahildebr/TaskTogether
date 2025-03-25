@@ -1,22 +1,26 @@
 import React, { useEffect, useContext, useState } from "react";
 import { useParams } from "react-router-dom";
 import { TaskContext } from "../context/TasksContext";
+import { BoardsContext } from "../context/BoardsContext";
 import NewTaskForm from "./NewTaskForm";
 import EditTaskForm from "./EditTaskForm";
 import BoardEditForm from "./BoardEditForm";
 
-
 const BoardPage = () => {
   const { board_id } = useParams();
   const { tasks, fetchTasks, deleteTask } = useContext(TaskContext);
+  const { inviteUserToBoard } = useContext(BoardsContext);
+
   const [editingTask, setEditingTask] = useState(null);
   const [board, setBoard] = useState(null);
   const [editingBoard, setEditingBoard] = useState(false);
 
+  const [inviteUsername, setInviteUsername] = useState("");
+  const [inviteMessage, setInviteMessage] = useState(null);
 
   useEffect(() => {
-    fetchTasks(board_id),
-    fetchBoardDetails()
+    fetchTasks(board_id);
+    fetchBoardDetails();
   }, [board_id]);
 
   const fetchBoardDetails = async () => {
@@ -27,23 +31,48 @@ const BoardPage = () => {
     setBoard(data);
   };
 
+  const handleInvite = async (e) => {
+    e.preventDefault();
+    const result = await inviteUserToBoard(board.id, inviteUsername);
+    if (result.success) {
+      setInviteMessage(`${inviteUsername} added to board!`);
+      setInviteUsername("");
+    } else {
+      setInviteMessage(`${result.error}`);
+    }
+  };
+
   return (
     <div>
       <h2>Tasks for Board {board_id}</h2>
+
       {board && (
         <div>
           <h2>{board.title}</h2>
           <p>{board.description}</p>
           <button onClick={() => setEditingBoard(true)}>Edit Board</button>
+
           {editingBoard && (
-          <BoardEditForm
-            board={board}
-            onClose={() => setEditingBoard(false)}
-            onUpdate={(updatedBoard) => setBoard(updatedBoard)}
-          />
-        )}
+            <BoardEditForm
+              board={board}
+              onClose={() => setEditingBoard(false)}
+              onUpdate={(updatedBoard) => setBoard(updatedBoard)}
+            />
+          )}
+
+          <form onSubmit={handleInvite}>
+            <input
+              type="text"
+              placeholder="Enter username to invite"
+              value={inviteUsername}
+              onChange={(e) => setInviteUsername(e.target.value)}
+            />
+            <button type="submit">Invite</button>
+          </form>
+          {inviteMessage && <p>{inviteMessage}</p>}
         </div>
       )}
+
       <NewTaskForm board_id={board_id} />
 
       <h3>Existing Tasks</h3>

@@ -79,7 +79,7 @@ export const BoardsProvider = ({ children }) => {
       if (!res.ok) throw new Error("Failed to update board");
       const updated = await res.json();
   
-      // this isn't necessary unless WebSocket fails, but it’s a good fallback
+      // this isn't necessary unless WebSocket fails
       setBoards((prev) =>
         prev.map((b) => (b.id === updated.id ? updated : b))
       );
@@ -105,10 +105,32 @@ export const BoardsProvider = ({ children }) => {
     }
   };
   
-
+  const inviteUserToBoard = async (boardId, username) => {
+    try {
+      const res = await fetch(`/api/boards/${boardId}/add_user`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ username }),
+      });
+  
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || "Failed to invite user.");
+      }
+  
+      const data = await res.json();
+      return { success: true, data };
+    } catch (err) {
+      return { success: false, error: err.message };
+    }
+  };
+  
 
   return (
-    <BoardsContext.Provider value={{ boards, loading, error, fetchBoards, createBoard, updateBoard, deleteBoard }}>
+    <BoardsContext.Provider value={{ boards, loading, error, fetchBoards, createBoard, updateBoard, deleteBoard, inviteUserToBoard }}>
       {children}
     </BoardsContext.Provider>
   );
