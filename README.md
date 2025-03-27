@@ -1,4 +1,4 @@
-# TaskTogether 🧠
+# TaskTogether
 
 TaskTogether is a full-stack, real-time task collaboration app that allows users to create project boards, add and manage tasks, and invite collaborators — all with live updates powered by WebSockets.
 
@@ -79,17 +79,6 @@ Edit or Delete Tasks/Boards as needed — updates appear instantly for all users
 
 Each board acts as a collaborative workspace where users can keep track of progress in real time.
 
-📁 Project Structure
-bash
-Copy
-Edit
-tasktogether/
-├── client/               # React frontend
-├── server/               # Flask backend
-    ├── app.py
-    ├── models/
-    ├── routes/
-    ├── seed.py           # Seeds your database
 
 
 
