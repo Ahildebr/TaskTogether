@@ -1,5 +1,11 @@
-import React, { useState} from "react";
-
+import React, { useState } from "react";
+import {
+  Paper,
+  TextField,
+  Button,
+  Box,
+  Typography,
+} from "@mui/material";
 
 const BoardEditForm = ({ board, onClose, onUpdate }) => {
   const [title, setTitle] = useState(board.title);
@@ -18,25 +24,40 @@ const BoardEditForm = ({ board, onClose, onUpdate }) => {
     });
 
     const updated = await res.json();
-    if (onUpdate) onUpdate(updated); // ✅ Send update to parent
-    if (onClose) onClose(); // ✅ Close the form
+    if (onUpdate) onUpdate(updated);
+    if (onClose) onClose();
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginTop: "1rem" }}>
-      <label>
-        Title:
-        <input value={title} onChange={(e) => setTitle(e.target.value)} />
-      </label>
-      <br />
-      <label>
-        Description:
-        <textarea value={description} onChange={(e) => setDescription(e.target.value)} />
-      </label>
-      <br />
-      <button type="submit">Save Changes</button>
-      <button type="button" onClick={onClose}>Cancel</button>
-    </form>
+    <Paper elevation={3} sx={{ p: 3, mt: 3, maxWidth: 500, mx: "auto" }}>
+      <Typography variant="h6" gutterBottom>
+        Edit Board
+      </Typography>
+      <Box component="form" onSubmit={handleSubmit}>
+        <TextField
+          fullWidth
+          label="Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          margin="normal"
+        />
+        <TextField
+          fullWidth
+          label="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          margin="normal"
+        />
+        <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
+          <Button variant="outlined" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button variant="contained" type="submit">
+            Save Changes
+          </Button>
+        </Box>
+      </Box>
+    </Paper>
   );
 };
 

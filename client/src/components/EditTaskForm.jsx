@@ -1,5 +1,13 @@
 import React, { useState, useContext } from "react";
 import { TaskContext } from "../context/TasksContext";
+import {
+  TextField,
+  MenuItem,
+  Button,
+  Paper,
+  Box,
+  Typography,
+} from "@mui/material";
 
 const EditTaskForm = ({ task, closeForm }) => {
   const { editTask } = useContext(TaskContext);
@@ -13,22 +21,55 @@ const EditTaskForm = ({ task, closeForm }) => {
     setLoading(true);
     await editTask(task.id, { title, description, status });
     setLoading(false);
-    closeForm(); // ✅ Close the form after saving
+    closeForm();
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h3>Edit Task</h3>
-      <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required />
-      <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} required />
-      <select value={status} onChange={(e) => setStatus(e.target.value)}>
-        <option value="To Do">To Do</option>
-        <option value="In Progress">In Progress</option>
-        <option value="Completed">Completed</option>
-      </select>
-      <button type="submit" disabled={loading}>{loading ? "Saving..." : "Save"}</button>
-      <button type="button" onClick={closeForm}>Cancel</button>
-    </form>
+    <Paper elevation={3} sx={{ p: 3, mb: 2 }}>
+      <Typography variant="h6" gutterBottom>
+        Edit Task
+      </Typography>
+      <Box component="form" onSubmit={handleSubmit}>
+        <TextField
+          fullWidth
+          label="Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          margin="normal"
+          required
+        />
+        <TextField
+          fullWidth
+          label="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          margin="normal"
+          required
+        />
+        <TextField
+          fullWidth
+          select
+          label="Status"
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          margin="normal"
+        >
+          {["To Do", "In Progress", "Completed"].map((status) => (
+            <MenuItem key={status} value={status}>
+              {status}
+            </MenuItem>
+          ))}
+        </TextField>
+        <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
+          <Button variant="outlined" onClick={closeForm}>
+            Cancel
+          </Button>
+          <Button variant="contained" type="submit" disabled={loading}>
+            {loading ? "Saving..." : "Save"}
+          </Button>
+        </Box>
+      </Box>
+    </Paper>
   );
 };
 

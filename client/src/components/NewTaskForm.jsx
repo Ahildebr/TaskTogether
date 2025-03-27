@@ -1,5 +1,13 @@
 import React, { useState, useContext } from "react";
 import { TaskContext } from "../context/TasksContext";
+import {
+  Box,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  MenuItem,
+} from "@mui/material";
 
 const NewTaskForm = ({ board_id }) => {
   const { createTask } = useContext(TaskContext);
@@ -17,11 +25,46 @@ const NewTaskForm = ({ board_id }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Task title" required />
-      <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Task description" required />
-      <button type="submit">Add Task</button>
-    </form>
+    <Paper elevation={3} sx={{ p: 3, maxWidth: 500, mx: "auto", mt: 4 }}>
+      <Typography variant="h6" gutterBottom>
+        Create New Task
+      </Typography>
+      <Box component="form" onSubmit={handleSubmit}>
+        <TextField
+          fullWidth
+          label="Task Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          margin="normal"
+          required
+        />
+        <TextField
+          fullWidth
+          label="Task Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          margin="normal"
+          required
+        />
+        <TextField
+          fullWidth
+          select
+          label="Status"
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          margin="normal"
+        >
+          {["To Do", "In Progress", "Completed"].map((status) => (
+            <MenuItem key={status} value={status}>
+              {status}
+            </MenuItem>
+          ))}
+        </TextField>
+        <Button variant="contained" type="submit" fullWidth sx={{ mt: 2 }}>
+          Add Task
+        </Button>
+      </Box>
+    </Paper>
   );
 };
 

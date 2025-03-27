@@ -1,5 +1,13 @@
 import React, { useState, useContext } from "react";
 import { BoardsContext } from "../context/BoardsContext";
+import {
+  Paper,
+  TextField,
+  Button,
+  Typography,
+  Alert,
+  Box,
+} from "@mui/material";
 
 const NewBoardForm = () => {
   const { createBoard } = useContext(BoardsContext);
@@ -20,7 +28,7 @@ const NewBoardForm = () => {
 
     try {
       await createBoard(title, description);
-      setTitle(""); // Clear input fields
+      setTitle("");
       setDescription("");
     } catch (err) {
       setError("Failed to create board.");
@@ -30,33 +38,49 @@ const NewBoardForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginBottom: "20px" }}>
-      <h3>Create a New Board</h3>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <div>
-        <label>Title:</label>
-        <input
-          type="text"
+    <Paper elevation={3} sx={{ p: 3, maxWidth: 500, mx: "auto", mt: 4 }}>
+      <Typography variant="h6" gutterBottom>
+      What are we trying to keep track of today?🧐
+      </Typography>
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+
+      <Box component="form" onSubmit={handleSubmit}>
+        <TextField
+          fullWidth
+          label="Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Enter board title"
+          margin="normal"
           required
         />
-      </div>
-      <div>
-        <label>Description:</label>
-        <input
-          type="text"
+
+        <TextField
+          fullWidth
+          label="Description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Enter board description"
+          margin="normal"
           required
         />
-      </div>
-      <button type="submit" disabled={loading}>
-        {loading ? "Creating..." : "Create Board"}
-      </button>
-    </form>
+
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
+          sx={{ mt: 2 }}
+          disabled={loading}
+        >
+          {loading ? "Creating..." : "Create Board"}
+        </Button>
+      </Box>
+    </Paper>
   );
 };
 

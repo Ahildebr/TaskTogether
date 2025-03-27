@@ -6,6 +6,23 @@ import NewTaskForm from "./NewTaskForm";
 import EditTaskForm from "./EditTaskForm";
 import BoardEditForm from "./BoardEditForm";
 
+import {
+  Box,
+  Typography,
+  Button,
+  TextField,
+  Paper,
+  Card,
+  CardContent,
+  CardActions,
+  Grid,
+  Divider,
+  Alert,
+  Collapse,
+  IconButton,
+} from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+
 const BoardPage = () => {
   const { board_id } = useParams();
   const { tasks, fetchTasks, deleteTask } = useContext(TaskContext);
@@ -17,6 +34,10 @@ const BoardPage = () => {
 
   const [inviteUsername, setInviteUsername] = useState("");
   const [inviteMessage, setInviteMessage] = useState(null);
+
+  const [expandedTaskId, setExpandedTaskId] = useState(null);
+  const toggleExpand = (id) =>
+    setExpandedTaskId((prev) => (prev === id ? null : id));
 
   useEffect(() => {
     fetchTasks(board_id);
@@ -43,14 +64,30 @@ const BoardPage = () => {
   };
 
   return (
-    <div>
-      <h2>Tasks for Board {board_id}</h2>
-
+    <Box
+      sx={{
+        px: 4,
+        py: 6,
+        minHeight: "100vh",
+        backgroundColor: "background.default",
+      }}
+    >
       {board && (
-        <div>
-          <h2>{board.title}</h2>
-          <p>{board.description}</p>
-          <button onClick={() => setEditingBoard(true)}>Edit Board</button>
+        <Paper elevation={3} sx={{ p: 4, mb: 4 }}>
+          <Typography variant="h4" gutterBottom>
+            {board.title}
+          </Typography>
+          <Typography variant="body1" gutterBottom>
+            {board.description}
+          </Typography>
+
+          <Button
+            variant="outlined"
+            sx={{ mb: 2 }}
+            onClick={() => setEditingBoard(true)}
+          >
+            Edit Board
+          </Button>
 
           {editingBoard && (
             <BoardEditForm
@@ -60,42 +97,98 @@ const BoardPage = () => {
             />
           )}
 
-          <form onSubmit={handleInvite}>
-            <input
-              type="text"
-              placeholder="Enter username to invite"
+          <Box
+            component="form"
+            onSubmit={handleInvite}
+            sx={{ display: "flex", gap: 2, alignItems: "center", mb: 2 }}
+          >
+            <TextField
+              label="Invite user by username"
+              variant="outlined"
               value={inviteUsername}
               onChange={(e) => setInviteUsername(e.target.value)}
+              size="small"
             />
-            <button type="submit">Invite</button>
-          </form>
-          {inviteMessage && <p>{inviteMessage}</p>}
-        </div>
+            <Button variant="contained" type="submit">
+              Invite
+            </Button>
+          </Box>
+
+          {inviteMessage && (
+            <Alert severity="info" sx={{ mb: 2 }}>
+              {inviteMessage}
+            </Alert>
+          )}
+        </Paper>
       )}
 
       <NewTaskForm board_id={board_id} />
 
-      <h3>Existing Tasks</h3>
-      <ul>
-        {tasks.length > 0 ? (
-          tasks.map((task) => (
-            <li key={task.id}>
+      <Divider sx={{ my: 4 }} />
+
+      <Typography variant="h5" gutterBottom>
+        Existing Tasks
+      </Typography>
+
+      {tasks.length > 0 ? (
+        <Grid container spacing={2}>
+          {tasks.map((task) => (
+            <Grid item xs={12} sm={6} md={4} key={task.id}>
               {editingTask === task.id ? (
-                <EditTaskForm task={task} closeForm={() => setEditingTask(null)} />
+                <EditTaskForm
+                  task={task}
+                  closeForm={() => setEditingTask(null)}
+                />
               ) : (
-                <>
-                  <strong>{task.title}</strong> - {task.status}
-                  <button onClick={() => setEditingTask(task.id)}>Edit</button>
-                  <button onClick={() => deleteTask(task.id)}>Delete</button>
-                </>
+                <Card>
+                  <CardContent>
+                    <Typography variant="h6">{task.title}</Typography>
+                    <Typography color="text.secondary">
+                      {task.status}
+                    </Typography>
+                  </CardContent>
+                  <CardActions sx={{ justifyContent: "space-between" }}>
+                    <Box>
+                      <Button size="small" onClick={() => setEditingTask(task.id)}>
+                        Edit
+                      </Button>
+                      <Button
+                        size="small"
+                        color="error"
+                        onClick={() => deleteTask(task.id)}
+                      >
+                        Delete
+                      </Button>
+                    </Box>
+                    <IconButton
+                      onClick={() => toggleExpand(task.id)}
+                      sx={{
+                        transform:
+                          expandedTaskId === task.id
+                            ? "rotate(180deg)"
+                            : "rotate(0deg)",
+                        transition: "transform 0.2s",
+                      }}
+                    >
+                      <ExpandMoreIcon />
+                    </IconButton>
+                  </CardActions>
+                  <Collapse in={expandedTaskId === task.id} timeout="auto" unmountOnExit>
+                    <CardContent>
+                      <Typography variant="body1">
+                        {task.description}
+                      </Typography>
+                    </CardContent>
+                  </Collapse>
+                </Card>
               )}
-            </li>
-          ))
-        ) : (
-          <p>No tasks yet.</p>
-        )}
-      </ul>
-    </div>
+            </Grid>
+          ))}
+        </Grid>
+      ) : (
+        <Typography>No tasks yet.</Typography>
+      )}
+    </Box>
   );
 };
 

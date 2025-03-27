@@ -4,7 +4,7 @@ import NewBoardForm from './NewBoardForm'
 const NewBoardPage = () => {
   return (
     <div>
-        <h2>Create a New Board</h2>
+        <h2>What are we trying to keep track of today?🧐</h2>
         <NewBoardForm />
     </div>
   )

@@ -4,6 +4,8 @@ import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
+import { TextField, Button, Box, Typography, Paper } from "@mui/material";
+
 const SignupForm = () => {
   const { login_user } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -46,36 +48,44 @@ const SignupForm = () => {
   });
 
   return (
-    <div>
-      <h2>Sign Up</h2>
-      <form onSubmit={formik.handleSubmit}>
-        <input
-          type="text"
-          name="username"
-          placeholder="Username"
-          value={formik.values.username}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-        />
-        {formik.touched.username && formik.errors.username && (
-          <div className="error">{formik.errors.username}</div>
-        )}
+    <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
+      <Paper elevation={3} sx={{ p: 4, maxWidth: 400, width: '100%' }}>
+        <Typography variant="h5" mb={2}>
+          Sign Up
+        </Typography>
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={formik.values.password}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
-        />
-        {formik.touched.password && formik.errors.password && (
-          <div className="error">{formik.errors.password}</div>
-        )}
+        <form onSubmit={formik.handleSubmit}>
+          <TextField
+            fullWidth
+            label="Username"
+            name="username"
+            margin="normal"
+            value={formik.values.username}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.touched.username && Boolean(formik.errors.username)}
+            helperText={formik.touched.username && formik.errors.username}
+          />
 
-        <button type="submit">Sign Up</button>
-      </form>
-    </div>
+          <TextField
+            fullWidth
+            label="Password"
+            name="password"
+            type="password"
+            margin="normal"
+            value={formik.values.password}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.touched.password && Boolean(formik.errors.password)}
+            helperText={formik.touched.password && formik.errors.password}
+          />
+
+          <Button type="submit" fullWidth variant="contained" sx={{ mt: 2 }}>
+            Sign Up
+          </Button>
+        </form>
+      </Paper>
+    </Box>
   );
 };
 

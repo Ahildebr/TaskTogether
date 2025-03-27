@@ -9,7 +9,7 @@ import LoginForm from './LoginForm.jsx';
 import Dashboard from './Dashboard.jsx';
 import BoardPage from './BoardPage.jsx';
 import BoardsPage from './BoardsPage.jsx';
-import NewBoardPage from "./NewBoardPage.jsx";
+import NewBoardForm from "./NewBoardForm.jsx";
 import { TaskProvider } from "../context/TasksContext.jsx";
 
 function App() {
@@ -26,7 +26,7 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/boards" element={<BoardsPage />} />
               <Route path="/boards/:board_id" element={<BoardPage />} />
-              <Route path="/new-board" element={<NewBoardPage />} />
+              <Route path="/new-board" element={<NewBoardForm />} />
             </Routes>
           </TaskProvider>
         </BoardsProvider>

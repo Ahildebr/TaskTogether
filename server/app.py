@@ -4,10 +4,6 @@ from models import *
 from flask_cors import CORS
 from sqlalchemy.exc import IntegrityError
 
-# Enable CORS with credentials
-CORS(app, supports_credentials=True)
-
-
 
 # --- WebSocket Lifecycle Events ---
 @socketio.on("connect")
