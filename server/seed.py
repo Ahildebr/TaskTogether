@@ -15,13 +15,13 @@ if __name__ == "__main__":
 
     # Create Users
     user1 = User(username="alice")
-    user1.password_hash = "password123"  
+    user1.password_hash = "test"  
 
     user2 = User(username="bob")
-    user2.password_hash = "securepass"  
+    user2.password_hash = "test"  
 
     user3 = User(username="charlie")
-    user3.password_hash = "mypassword"  
+    user3.password_hash = "test"  
 
     db.session.add_all([user1, user2, user3])
     db.session.commit()
